@@ -1,0 +1,38 @@
+<!--
+The template defines the view of the component - what is actually rendered.
+In NativeScript applications the template is defined with XML using NativeScript UI elements.
+It is different from HTML. So instead of <input>, <span>, <div> etc. - we have <TextField>, <Label> and layouts.
+The important thing is that although the elements are different - all of the Angular’s template syntax works exactly the same.
+So you can still use template expressions, bindings, templates as well as all the built-in directives.
+-->
+
+<!--
+The ActionBar is the NativeScript common abstraction over the Android ActionBar and iOS NavigationBar.
+http://docs.nativescript.org/ui/action-bar
+-->
+<ActionBar title="Tappy Plugin Demo App">
+</ActionBar>
+
+<StackLayout>
+    <GridLayout columns="*,*" rows="auto">
+        <StackLayout row="0" col="0" width=220>
+            <Button class="-primary" text="Start Scan"  (tap)="startScan()"       [isEnabled]="canScan"></Button>
+            <Button class="-primary" text="Stop Scan"   (tap)="stopScan()"        [isEnabled]="isScanning"></Button>
+            <Button class="-primary" text="Connect"     (tap)="connectTappy()"    [isEnabled]="canConnect"></Button>
+            <Button class="-primary" text="Disconnect"  (tap)="disconnectTappy()" [isEnabled]="isConnected"></Button>
+        </StackLayout>
+        <StackLayout row="0" col="1" width=220>
+            <Button class="-primary" text="Scan Tag"    (tap)="scanTag()"         [isEnabled]="canPerformIO"></Button>
+            <Button class="-primary" text="Scan Tag/w TOut" (tap)="scanTagTimeout()" [isEnabled]="canPerformIO"></Button>
+            <Button class="-primary" text="Stream Tag"  (tap)="streamTag()"       [isEnabled]="canPerformIO"></Button>
+            <Button class="-primary" text="Scan NDEF"   (tap)="scanNDEF()"        [isEnabled]="canPerformIO"></Button>
+            <Button class="-primary" text="Stream NDEF" (tap)="readNDEF()"        [isEnabled]="canPerformIO"></Button>
+            <Button class="-primary" text="Write NDEF"  (tap)="writeNDEF()"       [isEnabled]="canPerformIO"></Button>
+            <Button class="-primary" text="Stop"        (tap)="stop()"            [isEnabled]="canStop"></Button>
+        </StackLayout>
+    </GridLayout>
+    <StackLayout class="hr m-10"></StackLayout>
+    <Label class="h2 font-weight-bold" [text]="message" textWrap="true" textAlignment="center"></Label>
+    <Label class="h2 font-weight-bold" [text]="tagText" textWrap="true" textAlignment="center"></Label>
+    <Label class="h2 font-weight-bold" [text]="ndefText" textWrap="true" textAlignment="center"></Label>
+</StackLayout>

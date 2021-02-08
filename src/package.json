@@ -1,0 +1,52 @@
+{
+    "name": "nativescript-tappy",
+    "version": "2.0.0",
+    "description": "Nativescript plugin for the TapTrack .",
+    "main": "tappy",
+    "typings": "index.d.ts",
+    "nativescript": {
+        "platforms": {
+            "android": "6.0.0",
+            "ios": "6.0.1"
+        }
+    },
+    "scripts": {
+        "build": "npm i && npm run compile",
+        "compile": "tsc && cp tappy.ios.d.ts index.d.ts",
+        "pack": "npm run compile && cd ../publish && ./pack.sh",
+        "demoprep": "cd .. && cp publish/package/* demo/plugins && cd demo && npm install ./plugins/*",
+        "tslint": "cd .. && tslint \"**/*.ts\" --config tslint.json --exclude \"**/node_modules/**\"",
+        "plugin.tscwatch": "npm run tsc -- -w",
+        "demo.reset": "cd ../demo && rimraf platforms",
+        "clean": "cd ../demo && rimraf hooks node_modules platforms && cd ../src && rimraf node_modules && npm run plugin.link",
+        "ci.tslint": "npm i && tslint '**/*.ts' --config '../tslint.json' --exclude '**/node_modules/**'",
+        "prepare": "node scripts/prepare.js"
+    },
+    "keywords": [
+        "NativeScript",
+        "JavaScript",
+        "Android",
+        "iOS"
+    ],
+    "author": {
+        "name": "Jim Cannaliato",
+        "email": "jim.cannaliato@jpgreze.com"
+    },
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/jpgreze/nativescript-tappy",
+    "readmeFilename": "README.md",
+    "devDependencies": {
+        "prompt": "^1.0.0",
+        "rimraf": "^2.6.3",
+        "semver": "^5.5.0",
+        "tns-core-modules": "^6.0.0",
+        "tns-platform-declarations": "^6.0.0",
+        "tslint": "^5.12.1",
+        "typescript": "^3.4.5"
+    },
+    "dependencies": {
+        "@taptrack/ndef": "^1.0.3",
+        "nativescript-permissions": "^1.3.11"
+    },
+    "bootstrapper": "nativescript-plugin-seed"
+}
