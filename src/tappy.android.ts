@@ -454,7 +454,7 @@ export class Tappy extends Common {
 			if (this.getTappyStatus() === TappyStatus.STATUS_READY) {
                 let pollingMode:number = com.taptrack.tcmptappy2.commandfamilies.basicnfc.PollingModes.MODE_GENERAL;
                 let scanNdefCommand: com.taptrack.tcmptappy2.commandfamilies.basicnfc.commands.ScanNdefCommand =
-                    new com.taptrack.tcmptappy2.commandfamilies.basicnfc.commands.StreamNdefCommand(timeout, pollingMode);
+                    new com.taptrack.tcmptappy2.commandfamilies.basicnfc.commands.ScanNdefCommand(timeout, pollingMode);
 				this.tappyBle.sendMessage(scanNdefCommand);
 				return true;
 			} else {
