@@ -1,6 +1,4 @@
-import { Observable } from 'tns-core-modules/data/observable';
-import * as app from 'tns-core-modules/application';
-import * as dialogs from 'tns-core-modules/ui/dialogs';
+import { Observable } from '@nativescript/core/data/observable';
 
 export declare const enum TappyStatus {
 	STATUS_DISCONNECTED = 1,

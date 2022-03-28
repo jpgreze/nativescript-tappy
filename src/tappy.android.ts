@@ -1,6 +1,6 @@
 import { ad } from '@nativescript/core/utils/utils';
 import { Common, LockingMode, TappyBleScannerStatus, TappyStatus } from './tappy.common';
-import * as applicationModule from "tns-core-modules/application";
+import * as applicationModule from "@nativescript/core/application";
 const permissions = require("nativescript-permissions");
 
 const NDEF = require('@taptrack/ndef');
