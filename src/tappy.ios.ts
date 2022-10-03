@@ -49,6 +49,17 @@ declare const enum BasicNFCResponseCode {
 	Error = 127
 };
 
+declare const enum TnfFormatCode {
+	TNF_EMPTY = 0,
+    TNF_WELL_KNOWN = 0x01,
+    TNF_MEDIA = 0x02,
+    TNF_ABSOLUTE_URI = 0x03,
+    TNF_EXTERNAL = 0x04,
+    TNF_UNKNOWN = 0x05,
+    TNF_UNCHANGED = 0x06,
+    TNF_RESERVED = 0x07,
+};
+
 declare class BasicNFCCommandResolver extends NSObject {
 	static alloc(): BasicNFCCommandResolver; // inherited from NSObject
 	static new(): BasicNFCCommandResolver; // inherited from NSObject
@@ -394,9 +405,42 @@ declare class WriteNDEFTextCommand extends NSObject implements TCMPMessage {
 	constructor(o: { payload: NSArray<number> | number[]; });
 	constructor(o: { text: string; });
 	constructor(o: { timeout: number; lockTag: LockingMode; text: string; });
+	initWithPayloadError(payload: NSArray<number> | number[]): this; // @objc public init(payload: [UInt8]) throws {
+	initWithText(text: string): this;								 // @objc public init(text: String) {
+	initWithTimeoutLockTagText(timeout: number, lockTag: LockingMode, text: string): this; // @objc public init(timeout: UInt8, lockTag: LockingMode, text: String){
+	parsePayloadWithPayloadError(payload: NSArray<number> | number[]): boolean;
+}
+
+declare class WriteNDEFUriCommand extends NSObject implements TCMPMessage {
+	static alloc(): WriteNDEFTextCommand; // inherited from NSObject
+	static new(): WriteNDEFTextCommand; // inherited from NSObject
+	public lockFlag: LockingMode;
+	public uri: NSArray<number>;
+	public uriPrefixCode: number;
+	public timeout: number;
+	public commandCode: number; // inherited from TCMPMessage
+	public commandFamily: NSArray<number>; // inherited from TCMPMessage
+	public payload: NSArray<number>; // inherited from TCMPMessage
+	constructor(o: { payload: NSArray<number> | number[]; }); // initWithPayloadError
+	constructor(o: { timeout: number; lockTag: LockingMode; uriPrefixCode: number; uri: NSArray<number>});
+	constructor(o: { timeout: number; lockTag: LockingMode; uriPrefixCode: number; uriStringNoPrefix: string });
+	constructor(o: { timeout: number; lockTag: LockingMode; uriStringWithPrefix: string});
+
+	// @objc public var uriString: String
+	public uriString(): string;
+
+	// @objc public init(payload: [UInt8]) throws
 	initWithPayloadError(payload: NSArray<number> | number[]): this;
-	initWithText(text: string): this;
-	initWithTimeoutLockTagText(timeout: number, lockTag: LockingMode, text: string): this;
+
+	// @objc public init(timeout: UInt8, lockTag: LockingMode, uriPrefixCode: UInt8, uri: [UInt8])
+	initWithTimeoutLockTagUriPrefixCodeUri(timeout: number, lockTag: LockingMode, uriPrefixCode:number, uri: NSArray<number>): this;
+
+	// @objc public convenience init(timeout: UInt8, lockTag: LockingMode, uriPrefixCode: UInt8, uriStringNoPrefix: String)
+	initWithTimeoutLockTagUriPrefixCodeUriStringNoPrefix(timeout: number, lockTag: LockingMode, uriPrefixCode:number, uriStringNoPrefix: string): this;
+
+	// @objc public init(timeout: UInt8, lockTag: LockingMode, uriStringWithPrefix: String)
+	initWithTimeoutLockTagUriStringWithPrefix(timeout: number, lockTag: LockingMode, uriStringWithPrefix: string): this;
+
 	parsePayloadWithPayloadError(payload: NSArray<number> | number[]): boolean;
 }
 
@@ -539,14 +583,26 @@ export class Tappy extends Common {
 							// now need to parse the payload
 							try {
 								let tagCode;
+								let records:any[] = [];
 								if (tcmpResponse.commandCode == BasicNFCResponseCode.NdefFound) {
 									let bytesArray = payload.slice(9, payload.length);
 									tagCode = payload.slice(2,9);
-									var message = NDEF.Message.fromBytes(bytesArray);
-									var records = message.getRecords();
-									var recordContents = NDEF.Utils.resolveTextRecord(records[0]);
-									if (recordContents.content) {
-										dataObj.ndefText = recordContents.content;
+									var message = NDEF.Message.fromBytes(bytesArray); // Returns an NdefMessage
+									records = message.getRecords();				      // Returns NdefRecord[]
+									const type = records[0].getType()[0];
+									if (type === 0x54) {
+										// This is a text record
+										var recordContents = NDEF.Utils.resolveTextRecord(records[0]);
+										if (recordContents.content) {
+											dataObj.ndefText = recordContents.content;
+										}
+									}
+									else if (type === 0x55) {
+										// This is a URI Record
+										var uriString = NDEF.Utils.resolveUriRecordToString(records[0]);
+										if (uriString) {
+											dataObj.uriText = uriString;
+										}
 									}
 								} else {
 									tagCode = payload.slice(1, payload.length);
@@ -558,6 +614,7 @@ export class Tappy extends Common {
 									eventName: "ndefFoundResponse",
 									object: this,
 									ndefData: dataObj,
+									ndefRecord: records[0],
 									timestamp: Date.now()
 								};
 								this.notify(ndefFoundResponseEvent);
@@ -646,6 +703,21 @@ export class Tappy extends Common {
 		try {
 			if (this.tappyBle.getLatestStatus() === TappyStatus.STATUS_READY) {
 				let writeCommand : WriteNDEFTextCommand = new WriteNDEFTextCommand({timeout, lockTag, text});
+				this.tappyBle.sendMessageWithMessage(writeCommand);
+				return true;
+			} else {
+				return false;
+			}
+		} catch (err) {
+			console.log("Error in Tappy.writeNDEF: ", err);
+			return false;
+		}
+    }
+
+    public writeUri(uriStringWithPrefix: string, timeout = 0, lockTag = LockingMode.DONT_LOCK_TAG): boolean {
+		try {
+			if (this.tappyBle.getLatestStatus() === TappyStatus.STATUS_READY) {
+				let writeCommand : WriteNDEFUriCommand = new WriteNDEFUriCommand({timeout, lockTag, uriStringWithPrefix});
 				this.tappyBle.sendMessageWithMessage(writeCommand);
 				return true;
 			} else {

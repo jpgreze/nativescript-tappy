@@ -28,6 +28,7 @@ http://docs.nativescript.org/ui/action-bar
             <Button class="-primary" text="Scan NDEF"   (tap)="scanNDEF()"        [isEnabled]="canPerformIO"></Button>
             <Button class="-primary" text="Stream NDEF" (tap)="readNDEF()"        [isEnabled]="canPerformIO"></Button>
             <Button class="-primary" text="Write NDEF"  (tap)="writeNDEF()"       [isEnabled]="canPerformIO"></Button>
+            <Button class="-primary" text="Write URI"   (tap)="writeURI()"        [isEnabled]="canPerformIO"></Button>
             <Button class="-primary" text="Stop"        (tap)="stop()"            [isEnabled]="canStop"></Button>
         </StackLayout>
     </GridLayout>

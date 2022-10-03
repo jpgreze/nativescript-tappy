@@ -141,17 +141,29 @@ export class TappyComponent implements OnInit {
         // on wristband data read
         this.tappy.on("ndefFoundResponse", (eventData: any) => {
             console.log("Tag Read Successful!");
+            let copyEventData = {...eventData};
+            copyEventData.object = undefined;
+            for (let key in copyEventData) {
+                console.log("  "+key);
+            }
             let duration = eventData.timestamp - this.timestamp;
             this.timestamp = eventData.timestamp;
             console.log("Time duration: ", duration);
             let data = eventData.ndefData;
+            console.log("eventData.ndefData=", data);
             let text = this.tagCounter + ": " + JSON.stringify(data);
             this.tagCounter++;
             let ndef = "No NDEF Records found";
             console.log(text);
             if (data.ndefText) {
-                ndef = data.ndefText;
+                ndef = "TEXT: " + data.ndefText;
             }
+            if (data.uriText) {
+                ndef = "URI: " + data.uriText;
+            }
+            // if (eventData.ndefRecord) {
+            //     console.log("NdefRecord: " + JSON.stringify(eventData.ndefRecord));
+            // }
             this.zone.run(async () => {
                 this.tagText = text;
                 this.ndefText = ndef;
@@ -267,12 +279,26 @@ export class TappyComponent implements OnInit {
     }
 
     writeNDEF(): void {
-        console.log("Do Write long url");
-        let text = "https://www.rapidtables.com/convert/number/decimal-to-hex.html/frankrox";
+        console.log("Write some text");
+        let text = "This is a test of the emergency broadcast system. This is only a test.";
+        // let text = '12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678';
         // let text = "aosdksaod,sa19292msakdheendishere!";
         // "70cbe99a-3764-11e8-b467-0ed5f89f718b";
         this.message = "Writing text " + text + " ...";
         this.tappy.writeNDEF(text);
+        this.canPerformIO = false;
+        this.isStreaming = false;
+        this.tagText = "";
+        this.ndefText = "";
+    }
+
+    writeURI(): void {
+        console.log("Do Write long url");
+        let uri = "https://funfangle.com/camps/";
+        // let text = "aosdksaod,sa19292msakdheendishere!";
+        // "70cbe99a-3764-11e8-b467-0ed5f89f718b";
+        this.message = "Writing text " + uri + " ...";
+        this.tappy.writeUri(uri);
         this.canPerformIO = false;
         this.isStreaming = false;
         this.tagText = "";

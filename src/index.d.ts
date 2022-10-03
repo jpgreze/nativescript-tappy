@@ -29,6 +29,7 @@ export declare class Tappy extends Common {
     startScan(): boolean;
     stopScan(): void;
     writeNDEF(text: string, timeout?: number, lockTag?: LockingMode): boolean;
+    writeUri(uriStringWithPrefix: string, timeout?: number, lockTag?: LockingMode): boolean;
     streamNDEF(timeout?: number): boolean;
     scanNDEF(timeout?: number): boolean;
     scanTag(timeout?: number): boolean;
